@@ -1,9 +1,4 @@
-
 class MoviesController < ApplicationController
-
-  def movie_params
-    params.require(:movie).permit(:title, :rating, :description, :release_date)
-  end
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -12,28 +7,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-
-    @all_ratings = Movie.ratings
-
-    #Initial setting up of sessions
-    session[:ratings] ||= @all_ratings
-    session[:sort] ||= 'id'
-
-    @title_hilite = session[:title_hilite] = "hilite" if params[:sort] == 'title'
-    @date_hilite = session[:date_hilite] = "hilite" if params[:sort] == 'release_date'
-
-    #Remembering the user's preferences
-    session[:ratings] = params[:ratings].keys if params[:ratings]
-    session[:sort] = params[:sort] if params[:sort]
-
-    #to preserve restfulness
-    redirect_to movies_path(ratings: Hash[session[:ratings].map {|r| [r,1]}], sort: session[:sort]) if  params[:ratings].nil? || params[:sort].nil?
-
-    @ratings = session[:ratings]
-    @sort = session[:sort]
-
-    @movies = Movie.where(rating: @ratings).order(@sort)
-
+    @movies = Movie.all
   end
 
   def new
@@ -64,4 +38,10 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  private
+  # Making "internal" methods private is not required, but is a common practice.
+  # This helps make clear which methods respond to requests, and which ones do not.
+  def movie_params
+    params.require(:movie).permit(:title, :rating, :description, :release_date)
+  end
 end
